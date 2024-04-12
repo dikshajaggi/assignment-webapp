@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
+import { addProduct } from '../api'; // Assuming you have an addProduct function in your API
 
 interface Product {
     id: number;
@@ -16,13 +17,13 @@ function FormAddProduct() {
 
     const mutation = useMutation(
         async (newProduct: Product) => {
-            // simulate the process of posting new product to the server
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            // simulating the process of adding new product to the client-side data
-            return newProduct;
+            // Simulate the process of posting new product to the server
+            const addedProduct = await addProduct(newProduct); // Add the product to the API
+            return addedProduct;
         },
         {
             onSuccess: (data: Product) => {
+                // Update the local state of products without refetching from the API
                 queryClient.setQueryData<Product[]>('products', (prev) => [...(prev || []), data]);
                 setName('');
                 setDescription('');
@@ -37,26 +38,29 @@ function FormAddProduct() {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className='w-[800px] flex justify-evenly'>
             <input
+                className='border rounded-md pl-1'
                 type="text"
                 placeholder="Product Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
             />
             <input
+                className='border rounded-md pl-1'
                 type="text"
                 placeholder="Product Description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
             />
             <input
+                className='border rounded-md pl-1'
                 type="text"
                 placeholder="Product Price"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
             />
-            <button type="submit" disabled={mutation.isLoading}>
+            <button className='h-[40px] w-[100px] bg-btn text-white rounded-md' type="submit" disabled={mutation.isLoading}>
                 {mutation.isLoading ? 'Adding...' : 'Add Product'}
             </button>
         </form>
